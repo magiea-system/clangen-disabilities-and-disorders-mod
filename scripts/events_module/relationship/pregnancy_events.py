@@ -176,24 +176,38 @@ class Pregnancy_Events():
         if cat.outside:
             return
 
-        thinking_amount = random.choices(["correct", "incorrect", "unsure"], [4, 1, 1], k=1)
-        if amount <= 3:
+        thinking_amount = random.choices(["correct", "incorrect", "unsure", "exact"], [4, 1, 2, 3], k=1)
+        if amount <= 6:
             correct_guess = "small"
+        elif amount >= 14:
+            correct_guess = "huge"
         else:
             correct_guess = "large"
 
         if thinking_amount[0] == "correct":
             if correct_guess == "small":
                 text = PREGNANT_STRINGS["litter_guess"][0]
+            elif correct_guess == "huge":
+                text = PREGNANT_STRINGS["litter_guess"][2]
             else:
                 text = PREGNANT_STRINGS["litter_guess"][1]
-        elif thinking_amount[0] == 'incorrect':
+        elif thinking_amount[0] == "incorrect":
             if correct_guess == "small":
-                text = PREGNANT_STRINGS["litter_guess"][1]
+                text = PREGNANT_STRINGS["litter_guess"][2 or 1]
+            if correct_guess == "huge":
+                text = PREGNANT_STRINGS["litter_guess"][0 or 1 or 4]
             else:
-                text = PREGNANT_STRINGS["litter_guess"][0]
+                text = PREGNANT_STRINGS["litter_guess"][0 or 2 or 4]
+        elif thinking_amount[0] == "exact":
+            thinking_amount = choice([amount - random.randint(1, 6), amount, amount + random.randint(1, 6)])
+            if thinking_amount < 1:
+                thinking_amount = 1
+            if thinking_amount == 1:
+                text = PREGNANT_STRINGS["litter_guess"][4]            
+            else:
+                text = f"{cat.name} isn't entirely certain but they think they will have a litter of {thinking_amount} kittens."
         else:
-            text = PREGNANT_STRINGS["litter_guess"][2]
+            text = PREGNANT_STRINGS["litter_guess"][3]
 
         if clan.game_mode != 'classic':
             try:
@@ -598,13 +612,13 @@ class Pregnancy_Events():
     def get_amount_of_kits(self, cat):
         """Get the amount of kits which will be born."""
         min_kits = game.config["pregnancy"]["min_kits"]
-        min_kit = [min_kits] * game.config["pregnancy"]["one_kit_possibility"][cat.age]
-        two_kits = [min_kits + 1] * game.config["pregnancy"]["two_kit_possibility"][cat.age]
-        three_kits = [min_kits + 2] * game.config["pregnancy"]["three_kit_possibility"][cat.age]
-        four_kits = [min_kits + 3] * game.config["pregnancy"]["four_kit_possibility"][cat.age]
-        five_kits = [min_kits + 4] * game.config["pregnancy"]["five_kit_possibility"][cat.age]
-        max_kits = [game.config["pregnancy"]["max_kits"]] * game.config["pregnancy"]["max_kit_possibility"][cat.age]
-        amount = choice(min_kit + two_kits + three_kits + four_kits + five_kits + max_kits)
+        max_kits = game.config["pregnancy"]["max_kits"]
+        tiny_litter = [random.randint(min_kits, 3)] * game.config["pregnancy"]["tiny_litter_possibility"][cat.age]
+        small_litter = [random.randint(4, 6)] * game.config["pregnancy"]["small_litter_possibility"][cat.age]
+        large_litter = [random.randint(7, 9)] * game.config["pregnancy"]["large_litter_possibility"][cat.age]
+        huge_litter = [random.randint(10, 14)] * game.config["pregnancy"]["huge_litter_possibility"][cat.age]
+        ridiculous_litter = [random.randint(15, max_kits)] * game.config["pregnancy"]["ridiculous_litter_possibility"][cat.age]
+        amount = choice(tiny_litter + small_litter + large_litter + huge_litter + ridiculous_litter)
 
         return amount
 
