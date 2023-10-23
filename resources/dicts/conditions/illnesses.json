@@ -1733,10 +1733,7 @@
         "cause_permanent": [
         ],
         "herbs": [
-        ]
-    },  
-            "elder": 0
-        },
+        ],
         "medicine_mortality": {
             "newborn": 0,
             "kitten": 0,
